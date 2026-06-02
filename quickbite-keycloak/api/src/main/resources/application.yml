@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: quickbite-api-keycloak
+  datasource:
+    url: ${DB_URL:jdbc:h2:mem:quickbite;DB_CLOSE_DELAY=-1}
+    username: ${DB_USER:sa}
+    password: ${DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Keycloak émet les tokens ; l'API valide la signature via le JWKS de l'issuer.
+          issuer-uri: ${ISSUER_URI:http://localhost:8080/realms/quickbite}
+
+server:
+  port: 8080
+
+quickbite:
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:4200,http://keycloak:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+logging:
+  level:
+    org.springframework.security: INFO

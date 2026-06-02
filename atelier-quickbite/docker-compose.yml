@@ -1,0 +1,39 @@
+# ATELIER DevOps (Module 2) — l'API + sa base PostgreSQL.
+# Démarrer :  docker compose up -d --build
+# Tester   :  curl http://localhost:8080/health
+services:
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      DATABASE_URL: jdbc:postgresql://db:5432/quickbite
+      DATABASE_USER: app
+      DATABASE_PASSWORD: secret
+      JWT_SECRET: une-cle-secrete-de-32-octets-minimum-a-changer!!
+      CORS_ORIGINS: http://localhost:4200
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [app-net]
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: quickbite
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d quickbite"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [app-net]
+
+volumes:
+  db-data:
+networks:
+  app-net:

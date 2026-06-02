@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn -B test)",
+      "Bash(npm config *)",
+      "Bash(curl -s -o /dev/null -w \"registry.npmjs.org -> HTTP %{http_code}\\\\n\" --max-time 15 https://registry.npmjs.org/@angular%2fcore)",
+      "Bash(echo \"INSTALL EXIT=$?\")",
+      "Bash(npx ng *)",
+      "Bash(echo \"BUILD EXIT=$?\")",
+      "Bash(pkill -f \"QuickBiteApplication\")",
+      "Bash(pkill -f \"ng serve\")"
+    ]
+  }
+}

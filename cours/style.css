@@ -1,0 +1,284 @@
+/* ===========================================================
+   Feuille de style — Manuel de formation (weasyprint)
+   Solid Wall Consulting
+   =========================================================== */
+
+@page {
+    size: A4;
+    margin: 22mm 18mm 20mm 18mm;
+    @top-left {
+        content: "Solid Wall Consulting";
+        font-size: 8pt;
+        color: #9aa0a6;
+        font-family: "DejaVu Sans", sans-serif;
+    }
+    @top-right {
+        content: string(module-title);
+        font-size: 8pt;
+        color: #9aa0a6;
+        font-family: "DejaVu Sans", sans-serif;
+    }
+    @bottom-left {
+        content: "Formateur : Haithem Mihoubi";
+        font-size: 8pt;
+        color: #9aa0a6;
+        font-family: "DejaVu Sans", sans-serif;
+    }
+    @bottom-center {
+        content: "Page " counter(page) " / " counter(pages);
+        font-size: 8pt;
+        color: #9aa0a6;
+        font-family: "DejaVu Sans", sans-serif;
+    }
+}
+
+/* Première page de couverture : pas d'en-têtes ni de pieds */
+@page :first {
+    @top-left { content: ""; }
+    @top-right { content: ""; }
+    @bottom-left { content: ""; }
+    @bottom-center { content: ""; }
+}
+
+html {
+    font-family: "DejaVu Sans", "Liberation Sans", sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.5;
+    color: #1f2329;
+}
+
+body { margin: 0; padding: 0; }
+
+/* ---------- Titres ---------- */
+h1 {
+    string-set: module-title content();
+    font-size: 21pt;
+    color: #0b3d62;
+    border-bottom: 3px solid #f5b301;
+    padding-bottom: 6px;
+    margin-top: 0;
+    page-break-before: always;
+    page-break-after: avoid;
+}
+h1:first-of-type { page-break-before: avoid; }
+
+h2 {
+    font-size: 15.5pt;
+    color: #0b3d62;
+    margin-top: 1.4em;
+    border-left: 5px solid #f5b301;
+    padding-left: 10px;
+    page-break-after: avoid;
+}
+
+h3 {
+    font-size: 12.5pt;
+    color: #14507a;
+    margin-top: 1.1em;
+    page-break-after: avoid;
+}
+
+h4 {
+    font-size: 11pt;
+    color: #333;
+    margin-top: 1em;
+    page-break-after: avoid;
+}
+
+p { margin: 0.5em 0; text-align: justify; }
+
+ul, ol { margin: 0.4em 0 0.7em 0; padding-left: 1.4em; }
+li { margin: 0.22em 0; }
+
+strong { color: #0b3d62; }
+a { color: #14507a; text-decoration: none; }
+
+/* ---------- Code ---------- */
+code {
+    font-family: "DejaVu Sans Mono", "Liberation Mono", monospace;
+    font-size: 8.6pt;
+    background: #f0f3f6;
+    padding: 1px 4px;
+    border-radius: 3px;
+    color: #b3261e;
+}
+pre {
+    background: #1e2733;
+    color: #e6edf3;
+    padding: 11px 13px;
+    border-radius: 6px;
+    font-size: 8.5pt;
+    line-height: 1.4;
+    overflow-x: auto;
+    page-break-inside: avoid;
+    border-left: 4px solid #f5b301;
+}
+pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    font-size: 8.5pt;
+}
+
+/* Coloration syntaxique (pygments, fond sombre) */
+.codehilite .k, .codehilite .kn, .codehilite .kd, .codehilite .kc { color: #ff7b72; }
+.codehilite .s, .codehilite .s1, .codehilite .s2, .codehilite .sb { color: #a5d6ff; }
+.codehilite .c, .codehilite .c1, .codehilite .cm { color: #8b949e; font-style: italic; }
+.codehilite .nf, .codehilite .fm { color: #d2a8ff; }
+.codehilite .nc, .codehilite .nn { color: #ffa657; }
+.codehilite .o, .codehilite .ow { color: #ff7b72; }
+.codehilite .mi, .codehilite .mf, .codehilite .m { color: #79c0ff; }
+.codehilite .na { color: #7ee787; }
+.codehilite .nt { color: #7ee787; }
+.codehilite .nb, .codehilite .bp { color: #ffa657; }
+
+/* ---------- Tableaux ---------- */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0.8em 0;
+    font-size: 9pt;
+    page-break-inside: avoid;
+}
+th {
+    background: #0b3d62;
+    color: #fff;
+    text-align: left;
+    padding: 6px 9px;
+    border: 1px solid #0b3d62;
+}
+td {
+    padding: 5px 9px;
+    border: 1px solid #cdd6e0;
+    vertical-align: top;
+}
+tr:nth-child(even) td { background: #f4f7fa; }
+
+/* ---------- Encadrés pédagogiques ---------- */
+blockquote {
+    margin: 0.9em 0;
+    padding: 9px 14px;
+    border-radius: 5px;
+    page-break-inside: avoid;
+}
+/* style par défaut */
+blockquote {
+    background: #eef4fb;
+    border-left: 5px solid #14507a;
+    color: #14304a;
+}
+blockquote p { margin: 0.25em 0; }
+
+/* Callouts via emoji en début de blockquote géré côté contenu */
+
+/* Classes utilitaires injectées via HTML brut dans le markdown */
+.callout {
+    margin: 0.9em 0;
+    padding: 10px 14px 10px 14px;
+    border-radius: 5px;
+    page-break-inside: avoid;
+    font-size: 9.8pt;
+}
+.callout .title { font-weight: bold; display:block; margin-bottom: 3px; }
+.note   { background:#eef4fb; border-left:5px solid #14507a; }
+.tip    { background:#eafaf1; border-left:5px solid #1e9e5a; }
+.warn   { background:#fdf1e7; border-left:5px solid #e08800; }
+.danger { background:#fdecea; border-left:5px solid #c0392b; }
+.lab    { background:#f3eefb; border-left:5px solid #6c3fb5; }
+.lab .title { color:#6c3fb5; }
+.tip .title { color:#1e7d46; }
+.warn .title { color:#b36b00; }
+.danger .title { color:#a52f22; }
+.note .title { color:#14507a; }
+
+/* Bloc objectifs / durée en tête de journée */
+.daybox {
+    background:#0b3d62;
+    color:#fff;
+    padding:12px 16px;
+    border-radius:6px;
+    margin:0.6em 0 1em 0;
+    page-break-inside: avoid;
+}
+.daybox h3 { color:#f5b301; margin:0 0 6px 0; border:none; }
+.daybox ul { margin:0; }
+.daybox li { color:#e6edf3; }
+
+/* ---------- Couverture ---------- */
+.cover {
+    page-break-after: always;
+    text-align: center;
+    padding-top: 60mm;
+}
+.cover .brand {
+    font-size: 13pt;
+    letter-spacing: 3px;
+    color: #f5b301;
+    font-weight: bold;
+}
+.cover .brand .sub { color:#0b3d62; letter-spacing: 6px; font-size: 9pt; display:block; margin-top:2px;}
+.cover h1.title {
+    font-size: 30pt;
+    color: #0b3d62;
+    border: none;
+    margin: 18mm 0 4mm 0;
+    page-break-before: avoid;
+}
+.cover .subtitle { font-size: 15pt; color:#14507a; margin-bottom: 22mm; }
+.cover .meta {
+    display:inline-block;
+    text-align:left;
+    background:#f4f7fa;
+    border:1px solid #cdd6e0;
+    border-radius:8px;
+    padding:14px 26px;
+    font-size:11pt;
+}
+.cover .meta b { color:#0b3d62; }
+.cover .foot { margin-top: 30mm; font-size:9pt; color:#9aa0a6; }
+
+/* ---------- Page "Comment utiliser ce cours" ---------- */
+.usage { page-break-after: always; }
+.blocktitle {
+    font-size: 15.5pt;
+    color: #0b3d62;
+    font-weight: bold;
+    border-left: 5px solid #f5b301;
+    padding-left: 10px;
+    margin: 0 0 0.8em 0;
+}
+
+/* ---------- Sommaire (table des matières cliquable) ---------- */
+.toc {
+    page-break-before: always;
+    page-break-after: always;
+}
+.toctitle {
+    display: block;
+    font-size: 21pt;
+    color: #0b3d62;
+    font-weight: bold;
+    border-bottom: 3px solid #f5b301;
+    padding-bottom: 6px;
+    margin-bottom: 0.8em;
+}
+.toc ul { list-style: none; padding-left: 0; margin: 0; }
+.toc li { margin: 0.18em 0; }
+/* Niveau 1 (modules / jours) : en gras, couleur marque */
+.toc > ul > li { font-weight: bold; color: #0b3d62; margin-top: 0.55em; }
+/* Niveau 2 (chapitres / sous-sections) : normal, indenté */
+.toc ul ul { padding-left: 1.3em; font-weight: normal; }
+.toc ul ul > li { color: #1f2329; }
+.toc a { color: inherit; text-decoration: none; }
+/* Numéro de page (cliquable) aligné à droite, avec points de conduite */
+.toc a::after {
+    content: leader('.') target-counter(attr(href url), page);
+    color: #14507a;
+    font-weight: normal;
+}
+
+hr { border: none; border-top: 1px solid #cdd6e0; margin: 1.4em 0; }
+
+/* Évite les coupures malheureuses */
+h1, h2, h3, h4 { -weasy-bookmark-level: none; }
+.keep { page-break-inside: avoid; }

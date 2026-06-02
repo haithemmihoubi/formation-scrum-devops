@@ -1,0 +1,16 @@
+# ATELIER DevOps (Module 2) — exposition HTTP via Ingress.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: quickbite-ingress
+spec:
+  rules:
+    - host: quickbite.local         # ajouter dans /etc/hosts : <minikube ip> quickbite.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: quickbite-api
+                port: { number: 80 }

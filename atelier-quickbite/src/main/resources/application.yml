@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: quickbite-api
+  datasource:
+    url: jdbc:h2:mem:quickbite;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+  h2:
+    console:
+      enabled: true        # http://localhost:8080/h2-console (dev uniquement)
+
+server:
+  port: 8080
+
+# Paramètres de sécurité applicative (JWT)
+quickbite:
+  security:
+    jwt:
+      # En production : fournir un secret fort via la variable d'env JWT_SECRET (>= 32 octets).
+      secret: ${JWT_SECRET:change-me-please-32-bytes-minimum-secret-key!!}
+      access-token-minutes: 15
+      refresh-token-days: 7
+    cors:
+      allowed-origins: ${CORS_ORIGINS:http://localhost:4200,http://localhost:3000}
+
+# Actuator : exposer le strict nécessaire, le reste reste protégé
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when_authorized
+
+logging:
+  level:
+    org.springframework.security: INFO

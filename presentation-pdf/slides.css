@@ -1,0 +1,65 @@
+/* Présentation PDF 16:9 paysage — Solid Wall */
+@page {
+    size: 297mm 167mm;          /* ratio 16:9 */
+    margin: 0;
+}
+* { box-sizing: border-box; }
+html { font-family: "DejaVu Sans", sans-serif; color: #1f2329; }
+body { margin: 0; }
+
+.slide {
+    position: relative;
+    width: 297mm;
+    height: 167mm;
+    padding: 14mm 16mm 12mm 16mm;
+    page-break-after: always;
+    overflow: hidden;
+}
+.slide:last-child { page-break-after: avoid; }
+
+/* numéro de slide + pied */
+.foot {
+    position: absolute;
+    bottom: 6mm; left: 16mm; right: 16mm;
+    display: flex; justify-content: space-between;
+    font-size: 9pt; color: #9aa0a6;
+}
+
+/* ---------- Slide de titre ---------- */
+.title-slide { background: #fff; }
+.title-slide .band { position: absolute; left: 0; right: 0; height: 8mm; background: #F5B301; }
+.title-slide .band.top { top: 0; }
+.title-slide .band.bottom { bottom: 0; }
+.title-slide .brand { color: #F5B301; font-weight: bold; letter-spacing: 3px; font-size: 13pt; margin-top: 26mm; }
+.title-slide h1 { color: #0B3D62; font-size: 40pt; margin: 12mm 0 4mm 0; }
+.title-slide .sub { color: #14507A; font-size: 18pt; }
+.title-slide .author { color: #5B6770; font-size: 13pt; margin-top: 18mm; }
+
+/* ---------- Slide de section ---------- */
+.section-slide { background: #0B3D62; }
+.section-slide .accent { width: 60mm; height: 3mm; background: #F5B301; margin: 70mm 0 6mm 0; }
+.section-slide h1 { color: #fff; font-size: 34pt; margin: 0; }
+.section-slide .sub { color: #F5B301; font-size: 17pt; margin-top: 4mm; }
+.section-slide .modnum { color: #F5B301; font-size: 14pt; letter-spacing: 2px; }
+
+/* ---------- Slide de contenu ---------- */
+.content-slide h2 {
+    color: #0B3D62; font-size: 23pt; margin: 0 0 2mm 0;
+    border-left: 6px solid #F5B301; padding-left: 8px;
+}
+.content-slide .row { display: flex; gap: 10mm; height: 118mm; }
+.content-slide .txt { flex: 1.15; }
+.content-slide .pic { flex: 1; display: flex; align-items: center; justify-content: center; }
+.content-slide .pic img { max-width: 100%; max-height: 110mm; }
+.content-slide .pic.logo img { max-height: 55mm; }     /* logos plus petits */
+.content-slide .intro {
+    font-size: 13.5pt; line-height: 1.5; color: #14304a;
+    background: #F4F7FA; border-left: 5px solid #14507A;
+    padding: 7px 12px; border-radius: 5px; margin: 3mm 0 4mm 0;
+}
+.content-slide ul { margin: 0; padding-left: 6mm; }
+.content-slide li { font-size: 13pt; line-height: 1.5; margin: 2mm 0; }
+.content-slide li.sub { font-size: 11.5pt; color: #5B6770; list-style: none; margin-left: -3mm; }
+.content-slide strong { color: #0B3D62; }
+.content-slide .full { text-align: center; }
+.content-slide .full img { max-height: 112mm; max-width: 92%; }

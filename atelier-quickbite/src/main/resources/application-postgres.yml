@@ -1,0 +1,15 @@
+# Profil "postgres" : activez-le avec SPRING_PROFILES_ACTIVE=postgres
+# (utilisé par docker-compose et en production).
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/quickbite}
+    username: ${DATABASE_USER:app}
+    password: ${DATABASE_PASSWORD:secret}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  h2:
+    console:
+      enabled: false

@@ -1,0 +1,98 @@
+# =====================================================================
+# QuickBite — version Keycloak, prête pour la production (tout en compose)
+#   - keycloak-db  : PostgreSQL dédié à Keycloak
+#   - keycloak     : serveur d'identité (import auto du realm)
+#   - app-db       : PostgreSQL de l'application
+#   - api          : API Spring Boot (resource server OIDC)
+# Lancer :  docker compose up -d --build
+# =====================================================================
+services:
+
+  keycloak-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    volumes:
+      - keycloak-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [qb-net]
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    command: ["start", "--import-realm"]
+    environment:
+      # Base de données
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+      # Compte admin de la console
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      # Hostname stable -> l'issuer des tokens est TOUJOURS http://keycloak:8080
+      KC_HOSTNAME: keycloak
+      KC_HOSTNAME_PORT: "8080"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      KC_HTTP_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+    volumes:
+      - ./keycloak/realm-quickbite.json:/opt/keycloak/data/import/realm-quickbite.json:ro
+    ports:
+      - "8080:8080"      # console admin : http://localhost:8080 (admin/admin)
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080; echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3; cat <&3 | grep -q '200 OK'"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+    networks: [qb-net]
+
+  app-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: quickbite
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - app-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d quickbite"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [qb-net]
+
+  api:
+    build: ./api
+    environment:
+      DB_URL: jdbc:postgresql://app-db:5432/quickbite
+      DB_USER: app
+      DB_PASSWORD: secret
+      ISSUER_URI: http://keycloak:8080/realms/quickbite
+      CORS_ORIGINS: http://localhost:4200,http://keycloak:8080
+    ports:
+      - "8082:8080"      # API : http://localhost:8082
+    depends_on:
+      app-db:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    networks: [qb-net]
+
+volumes:
+  keycloak-db-data:
+  app-db-data:
+
+networks:
+  qb-net:

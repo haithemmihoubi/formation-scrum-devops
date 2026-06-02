@@ -1,0 +1,20 @@
+# ATELIER DevOps (Module 2) — configuration et secrets.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: quickbite-config
+data:
+  SPRING_PROFILES_ACTIVE: "postgres"
+  DATABASE_URL: "jdbc:postgresql://quickbite-db:5432/quickbite"
+  DATABASE_USER: "app"
+  CORS_ORIGINS: "https://app.quickbite.com"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: quickbite-secret
+type: Opaque
+stringData:
+  # En production : NE PAS committer en clair (utiliser Sealed Secrets / Vault).
+  DATABASE_PASSWORD: "secret-a-changer"
+  JWT_SECRET: "une-cle-secrete-de-32-octets-minimum-a-changer!!"

@@ -1,0 +1,43 @@
+# ATELIER DevOps (Module 2) — déploiement de l'API sur Kubernetes.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quickbite-api
+  labels: { app: quickbite-api }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: quickbite-api }
+  template:
+    metadata:
+      labels: { app: quickbite-api }
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/monuser/quickbite-api:1.0.0
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef: { name: quickbite-config }
+            - secretRef: { name: quickbite-secret }
+          readinessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /actuator/health, port: 8080 }
+            initialDelaySeconds: 20
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits:   { cpu: "750m", memory: "512Mi" }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quickbite-api
+spec:
+  selector: { app: quickbite-api }
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: ClusterIP
