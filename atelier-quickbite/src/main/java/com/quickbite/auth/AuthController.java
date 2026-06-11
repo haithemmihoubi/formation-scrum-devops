@@ -22,6 +22,12 @@ public class AuthController {
         this.authService = authService;
     }
 
+    @PostMapping("/register")
+    @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.CREATED)
+    public TokenResponse register(@Valid @RequestBody AuthDtos.RegisterRequest req) {
+        return authService.register(req.username(), req.password());
+    }
+
     @PostMapping("/login")
     public TokenResponse login(@Valid @RequestBody LoginRequest req) {
         return authService.login(req.username(), req.password());

@@ -10,16 +10,16 @@
 <b>Public :</b> développeurs Java / Spring Boot<br>
 <b>Pré-requis :</b> Java 17+, bases de Spring Boot et des API REST
 </div>
-<div class="foot">Manuel de formation — usage pédagogique — © Solid Wall Consulting 2026</div>
+<div class="foot">Support pédagogique étudiant — © Solid Wall Consulting 2026</div>
 </div>
 
 [TOC]
 
-# Avant-propos formateur
+# Avant de commencer
 
-Module de **5 jours en mini-projet évolutif** : on construit une API sécurisée qui grossit chaque jour (auth basique → RBAC → JWT → Keycloak → durcissement). Le fil rouge est la **QuickBite API** (gestion d'utilisateurs, commandes, console admin).
+Ce module est un **mini-projet évolutif sur 5 jours** : on construit une API sécurisée qui grossit chaque jour (auth basique → RBAC → JWT → Keycloak → durcissement). Le fil rouge est la **QuickBite API** (gestion d'utilisateurs, commandes, console admin) — chaque notion est appliquée immédiatement sur ce projet.
 
-<div class="callout warn"><span class="title">⚠️ Préparer les postes</span>
+<div class="callout warn"><span class="title">⚠️ Préparer votre poste</span>
 JDK 17+ (idéalement 21), Maven ou Gradle, un IDE (IntelliJ/VS Code), <b>Postman</b> (ou <code>curl</code>/<code>httpie</code>), <b>Docker</b> (pour Keycloak et PostgreSQL au Jour 4). Générez le squelette sur <a href="https://start.spring.io">start.spring.io</a> (dépendances : Web, Security, JPA, PostgreSQL, Validation).
 </div>
 
@@ -191,8 +191,8 @@ UserDetailsService users(PasswordEncoder encoder) {
 }
 ```
 
-<div class="callout note"><span class="title">🗣️ Notes formateur — Atelier 1</span>
-Faites observer le mot de passe par défaut dans la console : excellent point d'accroche. Insistez sur la différence <code>hasRole("ADMIN")</code> (préfixe <code>ROLE_</code> implicite) vs <code>hasAuthority("ROLE_ADMIN")</code> — source d'erreurs classique.
+<div class="callout warn"><span class="title">⚠️ Le piège du préfixe <code>ROLE_</code></span>
+Observez le mot de passe généré par défaut affiché dans la console au démarrage. Et retenez bien la différence, source d'erreurs n°1 : <code>hasRole("ADMIN")</code> ajoute <b>implicitement</b> le préfixe et attend donc une autorité <code>ROLE_ADMIN</code>, alors que <code>hasAuthority("ROLE_ADMIN")</code> exige la chaîne exacte. Mélanger les deux est la cause classique des <code>403</code> inexpliqués.
 </div>
 
 ## Quiz — Jour 1
@@ -336,8 +336,8 @@ public class OrderController {
 - Un mauvais mot de passe → **401**.
 - La suppression d'une commande par un CLIENT → **403**.
 
-<div class="callout note"><span class="title">🗣️ Notes formateur — Atelier 2</span>
-Clarifiez la distinction <b>401 (non authentifié)</b> vs <b>403 (authentifié mais non autorisé)</b> — confusion fréquente. Montrez le piège du préfixe <code>ROLE_</code> : <code>hasRole('ADMIN')</code> attend une autorité <code>ROLE_ADMIN</code> en base.
+<div class="callout warn"><span class="title">⚠️ <code>401</code> ou <code>403</code> ? Ne les confondez pas</span>
+Distinction essentielle : <b>401 (non authentifié)</b> = « je ne sais pas qui tu es » (token absent ou invalide) ; <b>403 (authentifié mais non autorisé)</b> = « je sais qui tu es, mais tu n'as pas le droit ». Et rappel du piège du préfixe : <code>hasRole('ADMIN')</code> attend une autorité <code>ROLE_ADMIN</code> en base.
 </div>
 
 ## Quiz — Jour 2
@@ -551,8 +551,8 @@ GET  /admin/users     -> liste (ADMIN uniquement)
 - `/admin/users` → 403 pour un non-admin.
 - Token expiré → 401 propre ; refresh renvoie un nouvel access token.
 
-<div class="callout note"><span class="title">🗣️ Notes formateur — Atelier 3</span>
-Pièges : oublier <code>STATELESS</code> (Spring recrée des sessions), placer le filtre au mauvais endroit, secret trop court pour HS256 (≥ 256 bits). Faites stocker le token Postman dans une variable via un script de test — gain de temps énorme pour la suite.
+<div class="callout warn"><span class="title">⚠️ Les pièges classiques du JWT</span>
+Trois erreurs fréquentes : oublier <code>STATELESS</code> (Spring recrée alors des sessions à votre insu), placer le filtre JWT au mauvais endroit dans la chaîne, et utiliser un secret trop court pour HS256 (il faut <b>≥ 256 bits</b>). Astuce de productivité : stockez le token dans une <b>variable Postman</b> via un script de test — vous gagnerez un temps énorme pour la suite des ateliers.
 </div>
 
 ## Quiz — Jour 3
@@ -705,8 +705,8 @@ docker run -p 8080:8080 \
 - L'API valide le token et applique les rôles (200/403).
 - Le front affiche/masque la console admin selon le rôle.
 
-<div class="callout note"><span class="title">🗣️ Notes formateur — Atelier 4</span>
-Pièges : <code>issuer-uri</code> incohérent (localhost vs nom de conteneur), horloges désynchronisées (validité du token), rôles non mappés (toujours 403). Montrez le token décodé sur <a href="https://jwt.io">jwt.io</a> pour vérifier les claims/roles — très pédagogique.
+<div class="callout warn"><span class="title">⚠️ Les pièges de l'intégration Keycloak</span>
+Surveillez trois points : un <code>issuer-uri</code> <b>incohérent</b> (localhost vs nom de conteneur), des <b>horloges désynchronisées</b> (qui invalident le token), et des <b>rôles non mappés</b> (qui donnent un <code>403</code> systématique). Réflexe de débogage : collez le token sur <a href="https://jwt.io">jwt.io</a> pour décoder et vérifier ses <i>claims</i> et ses rôles.
 </div>
 
 ## Quiz — Jour 4

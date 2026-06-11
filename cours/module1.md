@@ -8,39 +8,26 @@
 <b>Durée :</b> 3 jours (21 heures)<br>
 <b>Niveau :</b> Mixte (débutant → intermédiaire)<br>
 <b>Public :</b> chefs de projet, développeurs, PO, futurs SM<br>
-<b>Format :</b> manuel formateur — théorie, ateliers, corrigés
+<b>Format :</b> support étudiant — théorie, ateliers, exercices
 </div>
-<div class="foot">Manuel de formation — usage pédagogique — © Solid Wall Consulting 2026</div>
+<div class="foot">Support pédagogique étudiant — © Solid Wall Consulting 2026</div>
 </div>
 
 [TOC]
 
-# Avant-propos formateur
+# Avant de commencer
 
-Ce manuel est conçu pour être **enseigné** : chaque chapitre alterne théorie courte, exemples concrets, ateliers et corrigés. Le fil rouge pédagogique repose sur un cas fil rouge unique — une application mobile de **commande de repas, « QuickBite »** — que les participants font évoluer atelier après atelier.
+Ce support alterne **théorie courte, exemples concrets et ateliers** à réaliser soi-même. Le fil rouge est une application mobile de **commande de repas, « QuickBite »**, que l'on fait évoluer atelier après atelier — vous appliquez chaque notion immédiatement.
 
-<div class="callout note"><span class="title">📘 Comment lire ce manuel</span>
-Les encadrés bleus sont des <b>notes</b>, les verts des <b>astuces</b>, les oranges des <b>points de vigilance</b>, les violets des <b>ateliers</b>. Les sections « <b>Notes formateur</b> » donnent le minutage, les pièges fréquents et les questions du public.
+<div class="callout note"><span class="title">📘 Comment lire ce support</span>
+Les encadrés bleus sont des <b>notes</b> (à mémoriser), les verts des <b>astuces</b>, les oranges des <b>points de vigilance</b> (erreurs fréquentes), les violets des <b>ateliers</b> (à faire vous-même).
 </div>
 
-### Déroulé horaire type d'une journée (7 h)
+### Ce dont vous avez besoin
 
-| Plage | Activité |
-|------|----------|
-| 09:00 – 10:30 | Théorie + démonstration |
-| 10:30 – 10:45 | Pause |
-| 10:45 – 12:30 | Théorie + mini-exercices |
-| 12:30 – 13:30 | Déjeuner |
-| 13:30 – 15:30 | Atelier pratique en équipes |
-| 15:30 – 15:45 | Pause |
-| 15:45 – 17:00 | Restitution, corrigé, quiz, Q/R |
-
-### Matériel requis
-
-- Un paperboard ou tableau blanc + post-it de 3 couleurs.
-- Un poste par participant avec accès Internet.
-- Un compte gratuit sur **Trello** (ou **Jira** / **GitHub Projects**).
-- Le jeu de **Planning Poker** (cartes physiques ou appli en ligne).
+- Un compte gratuit sur **Jira** (ou **Trello** / **GitHub Projects**) pour les ateliers de board.
+- De quoi estimer en équipe : un jeu de **Planning Poker** (cartes physiques ou application en ligne).
+- En atelier de groupe : un tableau ou paperboard et des post-it de trois couleurs sont utiles, mais facultatifs.
 
 ---
 
@@ -88,10 +75,8 @@ En février 2001, dix-sept praticiens (Kent Beck, Martin Fowler, Ken Schwaber, J
 | 2003 | David J. Anderson applique Kanban au développement logiciel |
 | 2010+ | Mise à l'échelle (SAFe, LeSS), DevOps, Agile « partout » |
 
-### Notes formateur
-
-<div class="callout note"><span class="title">🗣️ Notes formateur — 1.1 (≈ 30 min)</span>
-Démarrez par une question ouverte : <i>« Racontez-moi un projet qui a mal tourné. »</i> Notez les causes au tableau ; vous y reviendrez en montrant que l'Agilité adresse chacune. Piège fréquent du public : confondre « Agile » et « pas de documentation / pas de plan ». À corriger immédiatement : Agile = juste assez de documentation, au bon moment.
+<div class="callout tip"><span class="title">💡 Idée reçue à corriger tout de suite</span>
+On confond souvent « Agile » avec « pas de documentation ni de plan ». C'est faux : Agile signifie <b>juste assez de documentation, au bon moment</b>, plutôt qu'un gros document figé écrit trop tôt. Pour ancrer la notion, repensez à un projet qui a mal tourné autour de vous : la plupart des causes (besoins mal compris, feedback trop tardif, périmètre figé) sont exactement ce que l'Agilité cherche à adresser.
 </div>
 
 ## 1.2 Le Manifeste Agile : 4 valeurs, 12 principes
@@ -233,8 +218,8 @@ Le syndrome « c'est fini à 90 % » detruit la prévisibilité. La DoD est une 
 | Mêmes erreurs répétées | Pas de bilan | Rétrospective | Amélioration continue |
 | Surcharge / burn-out | Plan irréaliste | Rythme soutenable + WIP | Cadence tenable |
 
-<div class="callout note"><span class="title">🗣️ Notes formateur — Atelier 1</span>
-Circulez entre les équipes. Recadrez celles qui proposent « faire du Scrum » sans relier à un symptôme : on part toujours du <b>problème</b>, pas de l'outil. Bonne conclusion à projeter : « Agile n'est pas un objectif, c'est un moyen de livrer de la valeur plus vite et plus sûrement. »
+<div class="callout tip"><span class="title">💡 Le piège à éviter dans cet atelier</span>
+Ne proposez jamais « faire du Scrum » sans relier ce choix à un <b>symptôme</b> précis : on part toujours du <b>problème</b>, pas de l'outil. Gardez en tête la conclusion : « Agile n'est pas un objectif, c'est un <b>moyen</b> de livrer de la valeur plus vite et plus sûrement. »
 </div>
 
 ## Quiz — Jour 1
@@ -460,8 +445,8 @@ Les estimations en heures donnent une fausse précision et sont vite fausses. Le
 
 **Sprint Goal possible :** « Un client peut commander un plat dans un restaurant et payer — parcours bout en bout. » → Stories 1, 2, 3, 4 (= 19 points, dans la capacité).
 
-<div class="callout note"><span class="title">🗣️ Notes formateur — Atelier 2</span>
-Vérifiez que les stories respectent INVEST. Erreur fréquente : des « stories » techniques (« créer la table SQL ») — ce sont des tâches, pas des stories porteuses de valeur. Rappelez : le Sprint Goal donne la cohérence, pas une simple addition d'items.
+<div class="callout warn"><span class="title">⚠️ Erreur fréquente dans cet atelier</span>
+Vérifiez que vos stories respectent <b>INVEST</b>. L'erreur classique : écrire des « stories » purement techniques (« créer la table SQL ») — ce sont des <b>tâches</b>, pas des stories porteuses de valeur pour l'utilisateur. Et rappelez-vous : le <b>Sprint Goal</b> donne la cohérence d'ensemble, ce n'est pas une simple addition d'items.
 </div>
 
 ## Quiz — Jour 2
@@ -578,7 +563,7 @@ Graphe empilé du nombre d'items par état dans le temps. Une bande qui **s'éla
 **Étapes :**
 1. *(15 min)* Définir les colonnes (ex. *Backlog → Analyse → Dev → Test → Déployé*) et les **règles** de chaque colonne.
 2. *(15 min)* Poser des **limites de WIP** réalistes.
-3. *(30 min)* **Simulation** : tirer 2 cartes/jour en entrée, avancer les cartes selon une capacité par colonne (le formateur fournit des dés ou une cadence). Noter le lead time de chaque carte.
+3. *(30 min)* **Simulation** : tirer 2 cartes/jour en entrée, avancer les cartes selon une capacité par colonne (fixez une cadence simple, ou lancez un dé pour simuler la variabilité). Noter le lead time de chaque carte.
 4. *(15 min)* Identifier le **goulot**, baisser/déplacer une limite, rejouer 2 jours.
 5. *(15 min)* Restitution : qu'est-ce qui a changé sur le lead time / le throughput ?
 
@@ -587,18 +572,38 @@ Graphe empilé du nombre d'items par état dans le temps. Une bande qui **s'éla
 - Réduire le WIP amont ou renforcer la colonne goulot (entraide, swarming) **lisse le flux**.
 - Message clé : **optimiser le tout, pas chaque poste isolément** (théorie des contraintes).
 
-## 3.6 Outils modernes
+## 3.6 Les outils de gestion de projet agile
 
-| Outil | Points forts | Idéal pour |
-|-------|--------------|------------|
-| **Jira** | Puissant, reporting, agile à l'échelle | Équipes produit, grandes orgs |
-| **Trello** | Simplicité, prise en main immédiate | Petites équipes, Kanban léger |
-| **ClickUp** | Polyvalent (docs, objectifs, vues) | Équipes multi-usages |
-| **GitHub Projects** | Couplé au code, issues, automation | Équipes dev orientées GitHub |
-| **Asana** | Gestion de tâches/flux, échéances | Coordination transverse |
+Un cadre comme Scrum a besoin d'un **outil** pour vivre au quotidien : ordonner le backlog, tenir le board, planifier les sprints, suivre l'avancement. Voici les principaux acteurs du marché.
+
+| Outil | Éditeur / type | Points forts | Limites | Idéal pour |
+|-------|----------------|--------------|---------|------------|
+| **Jira** | Atlassian | Le plus complet pour Scrum **et** Kanban : backlog, sprints, burndown, story points, workflows sur mesure, reporting, agile à l'échelle (SAFe) | Riche donc complexe ; lourd pour une petite équipe | Équipes produit, de la PME au grand groupe |
+| **Azure DevOps Boards** | Microsoft | Boards + Repos + Pipelines dans une même suite | Surtout pertinent dans l'écosystème Azure | Équipes déjà chez Microsoft |
+| **GitHub Projects** | GitHub | Collé au code, aux issues et aux PR | Gestion de projet plus basique | Équipes de développeurs |
+| **GitLab** | GitLab | Issues, boards **et** CI/CD réunis | Moins riche que Jira sur l'agile pur | Équipes DevOps intégrées |
+| **Trello** | Atlassian | Ultra simple, cartes Kanban | Ni sprints ni estimation en natif | Petites équipes, Kanban léger |
+| **ClickUp / Asana / Monday** | éditeurs divers | Polyvalents (tâches, docs, vues) | Pas spécialisés Scrum | Coordination transverse |
+| **Linear** | Linear | Rapide, épuré, orienté produit | Reporting entreprise limité | Startups, équipes produit |
+
+### Notre choix : Jira — et pourquoi
+
+Pour le fil rouge QuickBite, nous retenons **Jira**. Ce n'est pas le plus simple des outils, mais c'est celui qui **colle le mieux à un vrai projet Scrum** et au monde professionnel. La justification, **concept par concept** :
+
+- **Il parle nativement Scrum :** **backlog** ordonnançable, **sprints** qu'on planifie, démarre et clôture, **board Scrum** et **board Kanban** — exactement les artefacts et événements du cadre, sans bricolage.
+- **Il modélise la hiérarchie Epic → User Story → Task**, gère les **story points** et l'estimation (Planning Poker via extension).
+- **Il calcule les métriques agiles** sans effort : **burndown / burnup**, **vélocité**, **diagramme de flux cumulé (CFD)**, temps de cycle — le PO et le Scrum Master pilotent avec des **données réelles**.
+- **Ses workflows sont personnalisables :** on y inscrit la **Definition of Done** et les règles de transition.
+- **Il passe à l'échelle** (d'une équipe à plusieurs équipes coordonnées, SAFe), ce qui en fait le **standard des grandes organisations**.
+- **Il s'intègre à la chaîne DevOps** (Module 2) : liaison avec **Bitbucket / GitHub / GitLab**, visibilité de la **CI/CD**, traçabilité **commit ↔ ticket**.
+- **Employabilité :** Jira est, de loin, l'outil le plus répandu en entreprise — une compétence directement valorisable.
+
+<div class="callout warn"><span class="title">⚠️ Jira n'est pas toujours le bon choix</span>
+Sa richesse a un prix : <b>courbe d'apprentissage</b>, configuration parfois lourde, tarif qui grimpe au-delà de quelques utilisateurs. Pour un projet personnel ou une équipe de deux ou trois personnes, <b>Trello</b> ou <b>GitHub Projects</b> suffisent. On choisit l'outil <b>adapté au besoin</b>, pas le plus gros par principe.
+</div>
 
 <div class="callout lab"><span class="title">🧪 Mini-atelier outil — 30 min</span>
-Sur <b>Trello</b> ou <b>GitHub Projects</b> : créez le board QuickBite, les colonnes, ajoutez 6 cartes (les User Stories de l'Atelier 2), des étiquettes MoSCoW, et déplacez 2 cartes pour simuler l'avancement. Activez une limite de WIP si l'outil le permet.
+Sur <b>Jira</b> (offre Cloud gratuite jusqu'à 10 utilisateurs) : créez un projet <b>Scrum</b> « QuickBite », alimentez le <b>backlog</b> avec les 6 User Stories de l'Atelier 2, attribuez <b>story points</b> et étiquettes <b>MoSCoW</b>, planifiez et <b>démarrez un sprint</b>, déplacez 2 tickets sur le board, puis ouvrez le <b>rapport burndown</b>. <i>Variante légère :</i> refaites-le sur <b>Trello</b> ou <b>GitHub Projects</b> et comparez ce qu'on gagne (simplicité) et ce qu'on perd (sprints, estimation, métriques).
 </div>
 
 ## Évaluation finale du Module 1

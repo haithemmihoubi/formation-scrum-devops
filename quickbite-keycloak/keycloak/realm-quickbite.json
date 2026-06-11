@@ -4,6 +4,9 @@
   "sslRequired": "none",
   "registrationAllowed": false,
   "accessTokenLifespan": 900,
+  "requiredActions": [
+    { "alias": "VERIFY_PROFILE", "name": "Verify Profile", "providerId": "VERIFY_PROFILE", "enabled": false, "defaultAction": false, "priority": 90, "config": {} }
+  ],
   "roles": {
     "realm": [
       { "name": "admin", "description": "Administrateur QuickBite" },
@@ -24,6 +27,16 @@
         "pkce.code.challenge.method": "S256",
         "post.logout.redirect.uris": "+"
       }
+    },
+    {
+      "clientId": "quickbite-backend",
+      "name": "QuickBite Backend (service account)",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "backend-secret",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false
     }
   ],
   "users": [
@@ -50,6 +63,14 @@
         { "type": "password", "value": "client", "temporary": false }
       ],
       "realmRoles": ["client"]
+    },
+    {
+      "username": "service-account-quickbite-backend",
+      "enabled": true,
+      "serviceAccountClientId": "quickbite-backend",
+      "clientRoles": {
+        "realm-management": ["manage-users", "view-users", "query-users", "view-realm"]
+      }
     }
   ]
 }

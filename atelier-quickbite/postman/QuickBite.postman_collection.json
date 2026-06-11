@@ -19,6 +19,31 @@
       }
     },
     {
+      "name": "0.5 — Register (signup)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201 Created', () => pm.response.code === 201 || pm.response.code === 409);",
+              "if (pm.response.code === 201) {",
+              "  const b = pm.response.json();",
+              "  pm.collectionVariables.set('accessToken', b.accessToken);",
+              "  pm.collectionVariables.set('refreshToken', b.refreshToken);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"username\": \"nouveau\",\n  \"password\": \"secret123\"\n}" },
+        "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+      }
+    },
+    {
       "name": "1 — Login ADMIN",
       "event": [
         {

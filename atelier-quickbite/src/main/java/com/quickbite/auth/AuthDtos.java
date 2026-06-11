@@ -5,6 +5,10 @@ import jakarta.validation.constraints.NotBlank;
 /** ATELIER 3 — objets de transfert (DTO) des endpoints d'authentification. */
 public class AuthDtos {
 
+    public record RegisterRequest(
+        @NotBlank String username,
+        @NotBlank @jakarta.validation.constraints.Size(min = 6) String password) { }
+
     public record LoginRequest(
         @NotBlank String username,
         @NotBlank String password) { }

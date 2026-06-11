@@ -5,6 +5,7 @@ com/quickbite/security/RestAccessDeniedHandler.class
 com/quickbite/security/SecurityProperties.class
 com/quickbite/web/GlobalExceptionHandler.class
 com/quickbite/auth/AuthDtos$TokenResponse.class
+com/quickbite/auth/AuthDtos$RegisterRequest.class
 com/quickbite/security/JwtAuthFilter.class
 com/quickbite/user/RoleEntity.class
 com/quickbite/user/UserRepository.class

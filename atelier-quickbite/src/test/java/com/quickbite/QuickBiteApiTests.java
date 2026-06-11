@@ -97,6 +97,16 @@ class QuickBiteApiTests {
     }
 
     @Test
+    void signup_creeUnCompteEtRenvoieDesTokens() throws Exception {
+        mvc.perform(post("/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"username\":\"nouveau\",\"password\":\"secret123\"}"))
+           .andExpect(status().isCreated())
+           .andExpect(jsonPath("$.accessToken").exists())
+           .andExpect(jsonPath("$.refreshToken").exists());
+    }
+
+    @Test
     void mauvaisMotDePasse_renvoie401() throws Exception {
         mvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)

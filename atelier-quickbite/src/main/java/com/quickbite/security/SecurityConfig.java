@@ -61,7 +61,7 @@ public class SecurityConfig {
             // ATELIER 1 : règles d'autorisation
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/health", "/actuator/health").permitAll()
-                .requestMatchers("/auth/login", "/auth/refresh").permitAll()
+                .requestMatchers("/auth/register", "/auth/login", "/auth/refresh").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()      // dev uniquement
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
