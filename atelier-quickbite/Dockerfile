@@ -11,7 +11,7 @@ RUN mvn -B clean package -DskipTests
 # ---------- Étape 2 : runtime ----------
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-ENV SPRING_PROFILES_ACTIVE=postgres
+ENV SPRING_PROFILES_ACTIVE=dev
 COPY --from=build /app/target/quickbite-api-*.jar app.jar
 EXPOSE 8080
 # Ne pas tourner en root
