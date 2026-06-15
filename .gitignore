@@ -5,5 +5,6 @@ __pycache__/
 # Fichiers de verrou LibreOffice
 .~lock.*#
 
-# Script de déploiement local — contient des identifiants en clair, NE JAMAIS committer
+# Scripts locaux VM — contiennent des identifiants en clair, NE JAMAIS committer
 deploy-backend.sh
+provision-vm.sh
