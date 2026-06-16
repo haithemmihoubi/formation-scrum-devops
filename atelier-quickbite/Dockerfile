@@ -1,4 +1,4 @@
-# ATELIER DevOps (Module 2) — image multi-stage : build Maven puis runtime léger.
+# ATELIER DevOps (Module 2) — image multi-stage : build Maven puis runtime léger. hjbjchbffjce 
 
 # ---------- Étape 1 : build ----------
 FROM maven:3.9-eclipse-temurin-21 AS build
