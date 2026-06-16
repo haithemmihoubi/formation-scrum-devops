@@ -1,0 +1,268 @@
+###############################################################################
+# Namespace
+# Permet d'isoler les ressources Kubernetes dans un environnement dédié.
+###############################################################################
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nginx-demo
+
+---
+###############################################################################
+# Deployment
+# Le Deployment gère :
+# - la création des Pods
+# - le nombre de réplicas
+# - les mises à jour (Rolling Update)
+# - les rollbacks
+###############################################################################
+
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: nginx-deployment
+  namespace: nginx-demo
+
+  labels:
+    app: nginx
+    environment: training
+    managed-by: kubernetes
+
+spec:
+
+  ###########################################################################
+  # Nombre de Pods à maintenir en permanence
+  ###########################################################################
+  replicas: 3
+
+  ###########################################################################
+  # Stratégie de mise à jour
+
+  ###########################################################################
+  strategy:
+    type: RollingUpdate
+
+    rollingUpdate:
+
+      # Nombre maximum de Pods supplémentaires
+      maxSurge: 1
+
+      # Nombre maximum de Pods indisponibles
+      maxUnavailable: 1
+
+  ###########################################################################
+  # Sélecteur permettant au Deployment de retrouver ses Pods
+  ###########################################################################
+  selector:
+    matchLabels:
+      app: nginx
+
+  ###########################################################################
+  # Template de création des Pods
+  ###########################################################################
+  template:
+
+    metadata:
+      labels:
+        app: nginx
+        version: v1
+
+    spec:
+
+      #######################################################################
+      # Sécurité au niveau du Pod
+      #######################################################################
+ 
+
+      #######################################################################
+      # Arrêt propre du Pod
+      #######################################################################
+      terminationGracePeriodSeconds: 30
+
+      containers:
+
+        #####################################################################
+        # Conteneur Nginx
+        #####################################################################
+        - name: nginx
+
+          image: nginx:latest
+
+          imagePullPolicy: IfNotPresent
+
+          ###################################################################
+          # Ports exposés par le conteneur
+          ###################################################################
+          ports:
+            - containerPort: 80
+              name: http
+              protocol: TCP
+
+          ###################################################################
+          # Variables d'environnement
+          ###################################################################
+          env:
+            - name: ENVIRONMENT
+              value: "TRAINING"
+
+            - name: APPLICATION_NAME
+              value: "NGINX-DEMO"
+
+          ###################################################################
+          # Réservation et limitation des ressources
+          ###################################################################
+          resources:
+
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+          ###################################################################
+          # Vérifie si le conteneur est vivant
+          # Si livenessProbe échoue plusieurs fois :
+          # Kubernetes redémarre le conteneur.
+          ###################################################################
+          livenessProbe:
+
+            httpGet:
+              path: /
+              port: 80
+
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          ###################################################################
+          # Vérifie si le Pod peut recevoir du trafic
+          ###################################################################
+          readinessProbe:
+
+            httpGet:
+              path: /
+              port: 80
+
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          ###################################################################
+          # Vérifie le démarrage de l'application
+          ###################################################################
+          startupProbe:
+
+            httpGet:
+              path: /
+              port: 80
+
+            failureThreshold: 30
+            periodSeconds: 5
+
+          ###################################################################
+          # Montage du volume HTML
+          ###################################################################
+          volumeMounts:
+            - name: nginx-html
+              mountPath: /usr/share/nginx/html
+
+      #########################################################################
+      # Volumes
+      #########################################################################
+      volumes:
+        - name: nginx-html
+
+          configMap:
+            name: nginx-html-config
+
+---
+###############################################################################
+# ConfigMap
+# Contient le contenu du site web
+###############################################################################
+
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: nginx-html-config
+  namespace: nginx-demo
+
+data:
+
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Kubernetes Training</title>
+      </head>
+      <body>
+        <h1>Nginx running on Kubernetes</h1>
+        <h2>Created by Haithem Mihoubi</h2>
+      </body>
+    </html>
+
+---
+###############################################################################
+# Service
+# Fournit une IP stable aux Pods
+###############################################################################
+
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: nginx-service
+  namespace: nginx-demo
+
+spec:
+
+  selector:
+    app: nginx
+
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+
+  type: ClusterIP
+
+---
+###############################################################################
+# Horizontal Pod Autoscaler
+# Augmente automatiquement le nombre de Pods
+###############################################################################
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+
+metadata:
+  name: nginx-hpa
+  namespace: nginx-demo
+
+spec:
+
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nginx-deployment
+
+  minReplicas: 3
+  maxReplicas: 10
+
+  metrics:
+    - type: Resource
+
+      resource:
+        name: cpu
+
+        target:
+          type: Utilization
+          averageUtilization: 70
