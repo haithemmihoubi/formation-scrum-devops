@@ -1,16 +1,41 @@
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  QuickBite Frontend — Pipeline CI/CD                               ║
+# ║                                                                    ║
+# ║  3 étapes :                                                        ║
+# ║    1. build   → Build Angular + image Docker + smoke test          ║
+# ║    2. push    → Publication de l'image sur GHCR (main / develop)   ║
+# ║    3. deploy  → Déploiement SSH sur le serveur (main uniquement)   ║
+# ╚════════════════════════════════════════════════════════════════════╝
+
 name: QuickBite Frontend — CI/CD
 
+# ── Quand le pipeline se lance ─────────────────────────────────────────
 on:
+  # Sur chaque push vers main ou develop (si le frontend change)
   push:
     branches: [main, develop]
     paths:
       - 'quickbite-frontend/**'
       - '.github/workflows/frontend-deploy.yml'
+  # Sur chaque PR vers main : on valide AVANT de fusionner (build only)
   pull_request:
     branches: [main]
     paths:
       - 'quickbite-frontend/**'
+  # Bouton "Run workflow" pour relancer manuellement
+  workflow_dispatch:
 
+# ── Permissions minimales (sécurité : moindre privilège) ───────────────
+permissions:
+  contents: read   # lecture du code
+  packages: write  # publication de l'image sur GHCR
+
+# ── Un seul run par branche : annule les exécutions obsolètes ──────────
+concurrency:
+  group: frontend-${{ github.ref }}
+  cancel-in-progress: true
+
+# ── Variables réutilisées dans tout le pipeline ────────────────────────
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: quickbite-frontend
@@ -18,18 +43,21 @@ env:
   CONTEXT_PATH: quickbite-frontend
 
 jobs:
-  # ──────────────────────────────────────────────
-  #   JOB 1 : Build & Test
-  # ──────────────────────────────────────────────
+  # ════════════════════════════════════════════════════════════════════
+  #   JOB 1 — BUILD & TEST
+  #   Compile Angular, construit l'image Docker et vérifie qu'elle démarre.
+  # ════════════════════════════════════════════════════════════════════
   build:
     name: 🏗️ Build Angular + Docker
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 15   # garde-fou si le job se bloque
 
     steps:
-      - name: 📥 Checkout code
+      # Récupère le code source sur le runner
+      - name: 📥 Checkout du code
         uses: actions/checkout@v4
 
+      # Installe Node.js 20 + cache npm (accélère les installations suivantes)
       - name: ⚡ Setup Node.js 20
         uses: actions/setup-node@v4
         with:
@@ -37,23 +65,29 @@ jobs:
           cache: 'npm'
           cache-dependency-path: ${{ env.CONTEXT_PATH }}/package-lock.json
 
-      - name: 📦 Install dependencies
+      # npm ci = installation propre et reproductible (basée sur package-lock)
+      - name: 📦 Installation des dépendances
         run: npm ci
         working-directory: ${{ env.CONTEXT_PATH }}
 
+      # Analyse statique du code (ne bloque pas tant que le lint n'est pas configuré)
       - name: 🧪 Lint
-        run: npx ng lint || echo "Aucune règle de lint configurée — skip"
+        run: npx ng lint || echo "ℹ️ Aucune règle de lint configurée — skip"
         working-directory: ${{ env.CONTEXT_PATH }}
         continue-on-error: true
 
+      # Compile l'app Angular en mode production (échoue si le build casse)
       - name: 🏗️ Build Angular (production)
         run: npm run build
         working-directory: ${{ env.CONTEXT_PATH }}
 
+      # Buildx : moteur de build Docker avancé (nécessaire pour le cache GHA)
       - name: 🐳 Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: 🐳 Build Docker image (sans push)
+      # Construit l'image SANS la publier. load:true → image dispo localement
+      # pour le smoke test. Le cache type=gha accélère les builds suivants.
+      - name: 🐳 Build de l'image Docker (sans push)
         uses: docker/build-push-action@v6
         with:
           context: ${{ env.CONTEXT_PATH }}
@@ -63,44 +97,60 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: 🧪 Smoke test — démarrer le conteneur et vérifier HTTP 200
+      # Smoke test : démarre le conteneur et vérifie qu'il répond en HTTP 200
+      # (attente active jusqu'à ~30s, plus fiable qu'un sleep fixe)
+      - name: 🧪 Smoke test — vérifier HTTP 200
         run: |
-          docker run -d -p 8080:80 --name smoke-test ${{ env.IMAGE_NAME }}:${{ github.sha }}
-          sleep 3
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/)
+          set -euo pipefail
+          docker run -d -p 8080:80 --name smoke-test "${IMAGE_NAME}:${GITHUB_SHA}"
+          for i in $(seq 1 15); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/ || echo "000")
+            [ "$STATUS" = "200" ] && break
+            echo "⏳ Tentative $i — HTTP $STATUS..."
+            sleep 2
+          done
           docker logs smoke-test
           docker rm -f smoke-test
           if [ "$STATUS" != "200" ]; then
-            echo "❌ Smoke test failed: HTTP $STATUS"
+            echo "❌ Smoke test échoué : HTTP $STATUS"
             exit 1
           fi
-          echo "✅ Smoke test passed: HTTP $STATUS"
+          echo "✅ Smoke test réussi : HTTP $STATUS"
+        env:
+          # On passe les valeurs via env (évite l'injection dans le script bash)
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          GITHUB_SHA: ${{ github.sha }}
 
-  # ──────────────────────────────────────────────
-  #   JOB 2 : Push image to registry
-  # ──────────────────────────────────────────────
+  # ════════════════════════════════════════════════════════════════════
+  #   JOB 2 — PUSH IMAGE
+  #   Publie l'image sur GHCR. Uniquement sur push vers main/develop
+  #   (jamais en Pull Request → on ne publie que du code intégré).
+  # ════════════════════════════════════════════════════════════════════
   push-image:
-    name: 📤 Push image to Registry
-    needs: build
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    name: 📤 Push image vers GHCR
+    needs: build   # ne démarre que si le build a réussi
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
     steps:
-      - name: 📥 Checkout code
+      - name: 📥 Checkout du code
         uses: actions/checkout@v4
 
       - name: 🐳 Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: 🔑 Log in to GitHub Container Registry
+      # Connexion à GHCR avec le token automatique du workflow (aucun PAT à gérer)
+      - name: 🔑 Connexion au GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 🏷️ Extraire les métadonnées (tags, labels)
+      # Génère les tags automatiquement :
+      #   <sha court>, <nom de branche>, et "latest" seulement sur main
+      - name: 🏷️ Métadonnées (tags & labels)
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -110,7 +160,8 @@ jobs:
             type=ref,event=branch
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
-      - name: 🐳 Build & Push image
+      # Build final + push vers le registre (réutilise le cache du job build)
+      - name: 🐳 Build & Push de l'image
         uses: docker/build-push-action@v6
         with:
           context: ${{ env.CONTEXT_PATH }}
@@ -121,56 +172,76 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # ──────────────────────────────────────────────
-  #   JOB 3 : Deploy on server (SSH)
-  # ──────────────────────────────────────────────
+  # ════════════════════════════════════════════════════════════════════
+  #   JOB 3 — DEPLOY
+  #   Déploie sur le serveur via SSH. Uniquement sur main (production).
+  #   L'environnement "production" permet d'exiger une validation manuelle.
+  # ════════════════════════════════════════════════════════════════════
   deploy:
-    name: 🚀 Deploy on server
+    name: 🚀 Déploiement Production
     needs: push-image
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    environment:
+      name: production
 
     steps:
-      - name: 📥 Checkout code (pour récupérer docker-compose si besoin)
-        uses: actions/checkout@v4
-
+      # Connexion SSH au serveur puis exécution du script de déploiement
       - name: 🚀 Déploiement via SSH
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          port: ${{ secrets.DEPLOY_PORT || '22' }}
+          port: ${{ secrets.DEPLOY_PORT || '22' }}   # 22 par défaut si non défini
           script: |
-            set -e
+            set -euo pipefail
+            CONTAINER="quickbite-frontend"
+            IMAGE="${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:latest"
 
-            # Se connecter au registry
+            # 1. Connexion au registre pour récupérer l'image
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            # Pull la dernière image
-            docker pull ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:latest
+            # 2. Mémorise l'image actuelle (filet de sécurité pour le rollback)
+            PREVIOUS_IMAGE=$(docker inspect -f '{{.Image}}' "$CONTAINER" 2>/dev/null || echo "")
 
-            # Arrêter l'ancien conteneur
-            docker rm -f quickbite-frontend 2>/dev/null || true
+            # 3. Récupère la nouvelle image
+            docker pull "$IMAGE"
 
-            # Lancer le nouveau conteneur
+            # 4. Remplace le conteneur (arrêt de l'ancien, démarrage du nouveau)
+            docker rm -f "$CONTAINER" 2>/dev/null || true
             docker run -d \
-              --name quickbite-frontend \
+              --name "$CONTAINER" \
               --restart unless-stopped \
               -p 80:80 \
               -p 443:443 \
               --label "traefik.enable=true" \
-              ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:latest
+              "$IMAGE"
 
-            # Nettoyer les anciennes images
-            docker image prune -af
+            # 5. Health check : le conteneur tourne ET répond en HTTP 200 ?
+            HEALTHY=false
+            for i in $(seq 1 15); do
+              RUNNING=$(docker inspect -f '{{.State.Running}}' "$CONTAINER" 2>/dev/null || echo "false")
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:80/ || echo "000")
+              if [ "$RUNNING" = "true" ] && [ "$STATUS" = "200" ]; then HEALTHY=true; break; fi
+              echo "⏳ Tentative $i — running=$RUNNING http=$STATUS"
+              sleep 2
+            done
 
-            # Vérifier que le conteneur tourne
-            sleep 3
-            if [ "$(docker inspect -f '{{.State.Running}}' quickbite-frontend)" != "true" ]; then
-              echo "❌ Le conteneur ne tourne pas !"
-              docker logs quickbite-frontend
+            # 6. Rollback automatique si le déploiement a échoué
+            if [ "$HEALTHY" != "true" ]; then
+              echo "❌ Déploiement KO — rollback en cours..."
+              docker logs "$CONTAINER" || true
+              docker rm -f "$CONTAINER" 2>/dev/null || true
+              if [ -n "$PREVIOUS_IMAGE" ]; then
+                docker run -d --name "$CONTAINER" --restart unless-stopped \
+                  -p 80:80 -p 443:443 --label "traefik.enable=true" "$PREVIOUS_IMAGE"
+                echo "↩️ Rollback vers l'image précédente effectué."
+              fi
               exit 1
             fi
+
+            # 7. Nettoyage des anciennes images inutilisées
+            docker image prune -af
             echo "✅ Déploiement réussi !"
