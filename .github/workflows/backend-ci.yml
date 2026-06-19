@@ -27,7 +27,7 @@ jobs:
   #   JOB 1 : Build & tests (Maven)
   # ──────────────────────────────────────────────
   build-test:
-    name: 🏗️ Build & tests  pour formation devops 
+    name: 🏗️ Build & tests  pour la formation devop
     runs-on: ubuntu-latest
     timeout-minutes: 15
 

@@ -35,9 +35,12 @@ services:
       # Compte admin de la console
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-      # Hostname stable -> l'issuer des tokens est TOUJOURS http://keycloak:8080
-      KC_HOSTNAME: keycloak
+      # Frontend (issuer + console admin) sur localhost -> le navigateur peut
+      # toujours resoudre l'hote. Le backchannel reste dynamique pour que l'API
+      # (dans le reseau Docker) puisse joindre Keycloak via le nom "keycloak".
+      KC_HOSTNAME: localhost
       KC_HOSTNAME_PORT: "8080"
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
       KC_HOSTNAME_STRICT: "false"
       KC_HOSTNAME_STRICT_HTTPS: "false"
       KC_HTTP_ENABLED: "true"
@@ -79,7 +82,11 @@ services:
       DB_URL: jdbc:postgresql://app-db:5432/quickbite
       DB_USER: app
       DB_PASSWORD: secret
-      ISSUER_URI: http://keycloak:8080/realms/quickbite
+      # L'issuer des tokens est desormais localhost (frontend Keycloak)...
+      ISSUER_URI: http://localhost:8080/realms/quickbite
+      # ...mais l'API recupere les cles JWKS via le nom Docker "keycloak"
+      # (localhost dans le conteneur api ne pointerait pas vers Keycloak).
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/quickbite/protocol/openid-connect/certs
       KEYCLOAK_BASE_URL: http://keycloak:8080
       KEYCLOAK_BACKEND_SECRET: backend-secret
       CORS_ORIGINS: http://localhost:4200,http://localhost:4300,http://keycloak:8080
